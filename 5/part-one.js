@@ -13,7 +13,7 @@ const maps = [
       input.slice(225,236).map(i=>i.split(' ')) //humid_to_loc
 ];
 
-function rangemaps(input, map) {
+function val_maps(input, map) {
       const x  = parseInt(input);
       const ds = map.map(i=>parseInt(i[0]));
       const ss = map.map(i=>parseInt(i[1]));
@@ -37,7 +37,7 @@ let out, locs = [];
 for (let s=0; s<seeds.length; s++) {
       out = seeds[s];
       for (let m=0; m<maps.length; m++) {
-            out = rangemaps(out,maps[m]);
+            out = val_maps(out,maps[m]);
       }
       locs.push(out);
 }
