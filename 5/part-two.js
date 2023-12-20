@@ -20,39 +20,71 @@ const maps = [
 
 // Helper for Parsing Maps Intervals
 const intervals = (i=> [parseInt(i[1]),                     // start
-                        parseInt(i[1]+parseInt(i[2])-1,     // end
-                        parseInt(i[0])-parseInt(i[1]))]);   // transform
+                        parseInt(i[1])+parseInt(i[2])-1,    // end
+                        parseInt(i[0])-parseInt(i[1])]);    // transform
 // Helper for Sorting Intervals
-const sort_by_start = ((intervalA,intervalB)=>intervalA[0]-intervalB[0]);
+const _by_start = ((intervalA,intervalB)=>intervalA[0]-intervalB[0]);
 
-
-function interval_maps(input_interval,map_interval) {
-    const a = input_interval[0];
-    const b = input_interval[1];
-    const x = map_interval[0];
-    const y = map_interval[1];
-    const z = map_interval[2];
-
-    let output_intervals = [];
-    
-    if (a>x) {
-        if (a>y) {      // Case F   x <= y < a <= b
-
+let input_intervals = seed_intervals.sort(_by_start);
+let map_intervals, output_intervals;
+let a,b,x,y,z,i;
+for (let m=0; m<maps.length; m++) {
+    output_intervals = [];
+    map_intervals = maps[m].map(intervals).sort(_by_start);
+    console.log('M'+m);
+    console.log('Input: ');
+    console.log(input_intervals[0])
+    console.log('Maps:')
+    console.log(map_intervals[0]);
+    i = 0;
+    // Until Input or Maps Interval Buffers are Empty
+    while ((input_intervals.length > 0) && (i < map_intervals.length)) {
+        // Iterate Over Maps Intervals
+        // (this could be more efficient by shifting elements of a temp maps buffer)
+        a = input_intervals[0][0];
+        b = input_intervals[0][1];
+        x = map_intervals[i][0];
+        y = map_intervals[i][1];
+        z = map_intervals[i][2];
+        if (a>=x) {
+            if (a>y) {      // Case F: x<=y<a<=b    No Overlap - Map Left of Input
+                
+            } else {
+                if (b>y) {  // Case E: x<=a<=y<b    Partial Overlap - Map Left of Input
+                    input_intervals.shift();
+                    input_intervals.unshift([y+1,b]);
+                    output_intervals.push([a+z,y+z]);
+                } else {    // Case D: x<=a<=b<=y   Full Overlap
+                    input_intervals.shift();
+                    output_intervals.push([a+z,b+z]);
+                }
+            }
         } else {
-            if (b>y) {  // Case E   x <= a <= y < b
-
-            } else {    // Case D   x <= a <= b <= y
-
+            if (b>y) {      // Case C: a<x<=y<b     Split
+                    input_intervals.shift();
+                    input_intervals.unshift([y+1,b]);
+                    output_intervals.push([a,x-1]);
+                    output_intervals.push([x+z,y+z]);
+            } else {
+                if (b>=x) { // Case B: a<x<=b<=y    Partial Overlap = Map Right of Input
+                    input_intervals.shift();
+                    output_intervals.push([a,x-1]);
+                    output_intervals.push([x+z,b+z]);
+                } else {    // Case A: a<=b<x<=y    No Overlap - Map Right of Input
+                    output_intervals.push(input_intervals.shift());
+                }
             }
         }
-    } else {
-        if ()       // Case C   a < x <= y < b
-
+        i++;
     }
+    // Translate Remaining Input Intervals When Maps Intervals Buffer is Empty
+    while (input_intervals.length > 0) {
+        output_intervals.push(input_intervals.shift());
+    }
+    input_intervals = output_intervals.sort(_by_start);
 }
 
+console.log(input_intervals)
+//minloc = input_intervals.reduce((a,v)=>((a===undefined)||(v[0]<a))?v[0]:a);
 
-
-minloc = locs.reduce((a,v)=>((a===undefined)||(v<a))?v:a);
-
-console.log(minloc);
+console.log(input_intervals[0][0])
